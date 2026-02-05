@@ -1095,4 +1095,176 @@
         for (let i = 0; i < 5; i++) {
             const bacteria = document.createElement('div');
             bacteria.className = 'bacteria-cell';
-            bacteria.style.left = `${
+            bacteria.style.left = `${Math.random() * 80 + 10}%`;
+            bacteria.style.top = `${Math.random() * 80 + 10}%`;
+            bacteria.style.animationDelay = `${i * 3}s`;
+            bacteria.style.animationDuration = `${20 + i * 5}s`;
+            particlesContainer.appendChild(bacteria);
+        }
+
+        // Particle burst effect on button click
+        function createParticleBurst(button) {
+            const rect = button.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = centerX + 'px';
+                particle.style.top = centerY + 'px';
+                particle.style.background = '#ccff00';
+                document.body.appendChild(particle);
+                
+                const angle = (i / 12) * Math.PI * 2;
+                const velocity = 100 + Math.random() * 50;
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity;
+                
+                gsap.to(particle, {
+                    x: tx,
+                    y: ty,
+                    opacity: 0,
+                    scale: 0,
+                    duration: 0.8,
+                    ease: "power2.out",
+                    onComplete: () => particle.remove()
+                });
+            }
+            
+            // Button press animation
+            gsap.to(button, {
+                scale: 0.95,
+                duration: 0.1,
+                yoyo: true,
+                repeat: 1
+            });
+        }
+
+        // Add ripple effect to all buttons
+        document.querySelectorAll('.btn-living').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const rect = button.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                
+                button.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Magnetic button effect
+        document.querySelectorAll('.btn-magnetic').forEach(button => {
+            button.addEventListener('mousemove', (e) => {
+                const rect = button.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                button.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+            });
+            
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'translate(0, 0)';
+            });
+        });
+
+        // Tab switching
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'text-white', 'border-[#ccff00]', 'border-[#00d4ff]', 'border-[#ff006e]');
+                b.classList.add('text-gray-400', 'border-transparent');
+            });
+            
+            btn.classList.remove('text-gray-400', 'border-transparent');
+            btn.classList.add('active', 'text-white');
+            
+            // Add appropriate border color
+            if (tabName === 'petase') btn.classList.add('border-[#ccff00]');
+            else if (tabName === 'mhetase') btn.classList.add('border-[#00d4ff]');
+            else if (tabName === 'cascade') btn.classList.add('border-[#ff006e]');
+        }
+
+        // Comparison toggle
+        function toggleComparison(element) {
+            const answer = element.querySelector('.hidden');
+            const arrow = element.querySelector('svg');
+            
+            if (answer) {
+                answer.classList.toggle('hidden');
+                if (arrow) {
+                    arrow.style.transform = answer.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(90deg)';
+                }
+            }
+        }
+
+        // Counter animation
+        function animateCounter(element) {
+            const counter = element.querySelector('.font-mono');
+            const target = parseFloat(counter.getAttribute('data-target'));
+            const duration = 2000;
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                counter.textContent = current % 1 === 0 ? Math.floor(current) + (target % 1 === 0 ? '%' : '') : current.toFixed(1);
+            }, 16);
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Initialize counters on scroll
+        const observerOptions = {
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.hover-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Parallax effect for hero section
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('section:first-of-type');
+            if (parallax) {
+                parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+    </script>
+</body>
+</html>
